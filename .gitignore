@@ -1,3 +1,20 @@
+# Google Calendar credentials
+*.pickle
+*.json
+
+# Cache files for Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+
+# Workspace files are user-specific
+*.sublime-workspace
+*.sublime-project
+
+# Project files should be checked into the repository, unless a significant
+# proportion of contributors will probably not be using Sublime Text
+# *.sublime-project
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
