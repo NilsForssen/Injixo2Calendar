@@ -1,0 +1,3 @@
+pyinstaller compile command:
+
+pyinstaller --onefile --icon=logo.ico --noconsole --add-data "logo.ico;." Injixio2Calendar.py
