@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import unicodedata
 import googleCalendar
 import datetime
 import sys
@@ -47,12 +46,13 @@ class Shift():
         """
 
         self.summary = summary
-        self.start = datetime.datetime.strptime(date+startTime, "%B %d, %Y%I:%M %p")
-        self.end = datetime.datetime.strptime(date+endTime, "%B %d, %Y%I:%M %p")
-        self.length = self.start - self.end 
+        self.start = datetime.datetime.strptime(
+            date + startTime, "%B %d, %Y%I:%M %p")
+        self.end = datetime.datetime.strptime(
+            date + endTime, "%B %d, %Y%I:%M %p")
+        self.length = self.start - self.end
 
         self.description = "Ingen lunchrast!"
-
 
     def mergeShift(self, shift):
         """
@@ -62,9 +62,8 @@ class Shift():
         self.end = shift.end
 
         if shift.summary == "Lunch":
-            self.description = str(shift.length.seconds/60) + " minuter lunchrast!"
-
-
+            self.description = str(
+                shift.length.seconds / 60) + " minuter lunchrast!"
 
     def getEvent(self):
         """
@@ -74,12 +73,13 @@ class Shift():
         event = {
             "summary": "H1 " + self.summary,
             "location": LOCATION,
-            "description": self.description + "\n\nH1 Communication arbetspass",        #The H1 tag "classifies" event as a shift
+            # The H1 tag "classifies" event as a shift
+            "description": self.description + "\n\nH1 Communication arbetspass",
             "start": {
                 "dateTime": "{0}T{1}+02:00".format(self.start.date(), self.start.time())
             },
             "end": {
-                "dateTime": "{0}T{1}+02:00".format(self.end.date(), self.end.time()) 
+                "dateTime": "{0}T{1}+02:00".format(self.end.date(), self.end.time())
             },
             "reminders": {
                 "useDefault": False,
@@ -132,14 +132,15 @@ def getDataPage(uName, pWord):
 
         # Soup the necesary login information from the login website
         soup = BeautifulSoup(loginPage.text, features="lxml")
-        
+
         # The crsf-token was renamed with a crsf-param
         token = soup.select_one("meta[name='csrf-token']")["content"]
         tokenName = soup.select_one("meta[name='csrf-param']")["content"]
         payload[tokenName] = token
 
         # Post with the login credentials and additional required information in payload
-        session.post("https://h1.me.injixo.com/login", data=payload, headers=headers)
+        session.post("https://h1.me.injixo.com/login",
+                     data=payload, headers=headers)
 
         # Agenda is located on the dashboard
         dataPage = session.get("https://h1.me.injixo.com/dashboard")
@@ -162,7 +163,7 @@ def updateCalendar(page):
     """
 
     dashboard = BeautifulSoup(page.content, features="lxml")
-    
+
     # Only search in the agenda portion of the dashboard
     agenda = dashboard.find("div", class_="pane__body agenda-spacer")
 
@@ -175,7 +176,8 @@ def updateCalendar(page):
         # If the list-item is a header including the current date, the date or none of those
         # In the latter case, the list-item is not a header and instead includes shift details
         # - Stupid HTML class-generalization on the website but that is what I have to work with...
-        date = item.find("span", class_="current-day") or item.find("span", class_="") or date
+        date = item.find(
+            "span", class_="current-day") or item.find("span", class_="") or date
 
         shiftName = item.find("span", class_="agenda_event_title")
 
@@ -186,46 +188,45 @@ def updateCalendar(page):
             shiftTime = item.find("div", class_="list-item__action")
 
             # Create a shift node, this stores the details of every shift and can be parsed into events
-            newShift = Shift(date.text.strip(), shiftTime.text.strip()[:8], shiftTime.text.strip()[-8:], shiftName.text.strip())
+            newShift = Shift(date.text.strip(), shiftTime.text.strip()[
+                             :8], shiftTime.text.strip()[-8:], shiftName.text.strip())
 
+            # If there is a shift on the same day connected to the previous shift, merge them into one event, otherwise create two separate events
+            if "Kan Ej" not in newShift.summary:
 
-            # If there is a shift on the same day connected to the previous shift, merge them into one event, otherwise create two separate events 
-            try:
-                pastShift = shiftList[-1]
-            except IndexError:
-                shiftList.append(newShift)
-            else:
-
-                if "Kan Ej" not in newShift.summary:
+                try:
+                    pastShift = shiftList[-1]
+                except IndexError:
+                    shiftList.append(newShift)
+                else:
 
                     # If the same day and theres less than 1 hour between the shifts merge them, else just add the new shift as a separate shift
                     # If the newShift is a lunchbreak or shift after lunch they will all be merged as one long shift
-                    if pastShift.start.date() == newShift.start.date() and newShift.start.time() - pastShift.end.time() < datetime.timedelta(minutes=60) :
+                    if pastShift.start.date() == newShift.start.date() and newShift.start.time() - pastShift.end.time() < datetime.timedelta(minutes=60):
                         pastShift.mergeShift(newShift)
-                    else: 
+                    else:
                         shiftList.append(newShift)
+    if shiftList:
+        comingEvents = googleCalendar.listEvents(timeMin=shiftList[0].getEvent(
+        )["start"]["dateTime"], timeMax=shiftList[-1].getEvent()["end"]["dateTime"])
 
+        for comingEvent in comingEvents:
 
-    comingEvents = googleCalendar.listEvents(timeMin=shiftList[0].getEvent()["start"]["dateTime"], timeMax=shiftList[-1].getEvent()["end"]["dateTime"])
+            try:
+                lastLine = comingEvent["description"].splitlines()[-1]
 
-    for comingEvent in comingEvents:
+                if "H1 Communication arbetspass" in lastLine:
 
-        try:
-            lastLine = comingEvent["description"].splitlines()[-1]
+                    # The event is "classified" as a previously uploaded shift and should thus be updated
+                    # All currently active shifts will be readded later
+                    # This shift could have e.g. been canceled recently, thus it needs updating
 
-            if "H1 Communication arbetspass" in lastLine:
+                    googleCalendar.deleteEvent(comingEvent["id"])
 
-                # The event is "classified" as a previously uploaded shift and should thus be updated
-                # All currently active shifts will be readded later
-                # This shift could have e.g. been canceled recently, thus it needs updating
+            except KeyError:
 
-                googleCalendar.deleteEvent(comingEvent["id"])
-
-        except KeyError:
-
-            # An event without a description was found, this is not a game created by this script
-            pass
-
+                # An event without a description was found, this is not a game created by this script
+                pass
 
     for shift in shiftList:
 
@@ -252,7 +253,8 @@ if __name__ == "__main__":
         root.title("Injixio2Calendar")
 
         # GUI elements
-        header = tk.Label(text="Enter your injixio credentials", font='Helvetica 16')
+        header = tk.Label(
+            text="Enter your injixio credentials", font='Helvetica 16')
         uNameLabel = tk.Label(text="Username:", font="Helvetica 10")
         uNameEntry = tk.Entry()
         pWordLabel = tk.Label(text="Password:", font="Helvetica 10")
@@ -282,8 +284,8 @@ if __name__ == "__main__":
                 promptString.set("Login unsuccesful!")
                 promptLabel.config(fg="red2")
 
-
-        btn = tk.Button(text="Update Calendar", font="Helvetica 10 bold", command=btnUpdateCalendar, bg="green2", activebackground="green2")
+        btn = tk.Button(text="Update Calendar", font="Helvetica 10 bold",
+                        command=btnUpdateCalendar, bg="green2", activebackground="green2")
 
         # Grid GUI elements
         header.grid(columnspan=2, row=0, column=0, sticky="NSEW")
