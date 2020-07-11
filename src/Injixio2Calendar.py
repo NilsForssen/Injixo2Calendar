@@ -50,7 +50,7 @@ class Shift():
             date + startTime, "%B %d, %Y%I:%M %p")
         self.end = datetime.datetime.strptime(
             date + endTime, "%B %d, %Y%I:%M %p")
-        self.length = self.start - self.end
+        self.length = self.end - self.start
 
         self.description = "Ingen lunchrast!"
 
@@ -62,8 +62,8 @@ class Shift():
         self.end = shift.end
 
         if shift.summary == "Lunch":
-            self.description = str(
-                shift.length.seconds / 60) + " minuter lunchrast!"
+            self.description = str(int(
+                shift.length.seconds / 60)) + " minuter lunchrast!"
 
     def getEvent(self):
         """
@@ -202,7 +202,7 @@ def updateCalendar(page):
 
                     # If the same day and theres less than 1 hour between the shifts merge them, else just add the new shift as a separate shift
                     # If the newShift is a lunchbreak or shift after lunch they will all be merged as one long shift
-                    if pastShift.start.date() == newShift.start.date() and newShift.start.time() - pastShift.end.time() < datetime.timedelta(minutes=60):
+                    if pastShift.start.date() == newShift.start.date() and newShift.start - pastShift.end < datetime.timedelta(minutes=60):
                         pastShift.mergeShift(newShift)
                     else:
                         shiftList.append(newShift)
