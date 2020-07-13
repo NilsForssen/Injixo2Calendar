@@ -22,7 +22,7 @@ Now the script will have access to only your Google Calendar events as seen in s
 
 The script can be executed just by running the file, but can also be automated by running it via command prompt or a task in Windows Task Scheduler and passing the username and passwords as plain arguments.
 
-```
+```Bash
 Fogis2Calendar.exe \[username\] \[password\]
 ```
 
