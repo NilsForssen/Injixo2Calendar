@@ -1,7 +1,7 @@
 # Injixio2Calendar
 
 ## About
-Script to automatically fetch a schedule from a subdomain of injixo.com and schedule it as events in Google Calendar. 
+Script to automatically fetch a schedule from a subdomain h1.me of injixo.com and schedule it as events in Google Calendar. 
 
 No more Tedious logging in to injixo, browsing upcoming shifts and manually creating calendar events for each upcoming shift with correct time, location and lunchbreaks.
 
