@@ -1,4 +1,4 @@
-# Injixio2Calendar
+# Injixo2Calendar
 
 ## About
 Script to automatically fetch a schedule from a subdomain h1.me of injixo.com and schedule it as events in Google Calendar. 
