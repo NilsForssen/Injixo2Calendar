@@ -9,7 +9,7 @@ import pkg_resources.py2_warn
 
 
 """
-Python Script for adding h1.injixo shifts to Google Calendar. (should work for other injixo domains aswell?)
+Python Script for adding h1.injixo shifts to Google Calendar. (Should work for other injixo subdomains aswell?)
 
 credentials.json from Google API project is to be located in working directory.
 
