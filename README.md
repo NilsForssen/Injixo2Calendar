@@ -29,8 +29,8 @@ A token.pickle file will be created in the working directory when the script is 
 ## Issues
 Here are some common issues you can have running the executable:
 * "Failed to execute script Injixo2Calendar" - This is most likely caused by the script not detecting the credentials.json downloaded in the usage section. Follow the steps carefully, once completed, try running the script again, you should be redirected to a Google consent screen in your browser.
-* "Login Unsuccessfull" - Login to h1.me.injixo.com failed. Double Check your username and password. Also try logging in to Injixo manually since this issue can also be related to your account being suspended.
-* Same shifts are stacking in Google Calendar every time script is run. - This should only be an issue if the events created by the script are manually adjusted somehow. Normally the script searches for every event in your calendar within the time period of upcoming shifts. If the found event's description ends with "H1 Aebetspass" that event is recognized as a game and is replaced with the same shift directly from fogis, preventing stacking.
+* "Login Unsuccesfull" - Login to h1.me.injixo.com failed. Double Check your username and password. Also try logging in to Injixo manually since this issue can also be related to your account being suspended.
+* Same shifts are stacking in Google Calendar every time script is run. - This should only be an issue if the events created by the script are manually adjusted somehow. Normally the script searches for every event in your calendar within the time period of upcoming shifts. If the found event's description ends with "H1 Arbetspass" that event is recognized as a shift and is replaced with the same shift directly from Injixo, preventing stacking.
 
 If any issues remain or additional issues are found, contact me either by email or by commenting on this repository.
 
