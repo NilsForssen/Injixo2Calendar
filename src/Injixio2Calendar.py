@@ -250,7 +250,7 @@ if __name__ == "__main__":
 
         # Window icon
         root.iconbitmap(resource_path("logo.ico"))
-        root.title("Injixio2Calendar")
+        root.title("Injixo2Calendar")
 
         # GUI elements
         header = tk.Label(
