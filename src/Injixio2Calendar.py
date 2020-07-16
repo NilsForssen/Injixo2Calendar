@@ -9,7 +9,7 @@ import pkg_resources.py2_warn
 
 
 """
-Python Script for adding h1.injixio shifts to Google Calendar. (should work for other injixio domains aswell?)
+Python Script for adding h1.injixo shifts to Google Calendar. (should work for other injixo domains aswell?)
 
 credentials.json from Google API project is to be located in working directory.
 
@@ -254,7 +254,7 @@ if __name__ == "__main__":
 
         # GUI elements
         header = tk.Label(
-            text="Enter your injixio credentials", font='Helvetica 16')
+            text="Enter your injixo credentials", font='Helvetica 16')
         uNameLabel = tk.Label(text="Username:", font="Helvetica 10")
         uNameEntry = tk.Entry()
         pWordLabel = tk.Label(text="Password:", font="Helvetica 10")
