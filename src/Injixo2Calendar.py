@@ -40,9 +40,9 @@ class Shift():
     Shift can be merged with other shifts and converted to Google Calendar event format
     """
 
-    def __init__(self, date, startTime, endTime, summary):
+    def __init__(self, date, startTime, endTime, summary, offset):
         """
-        Initialize shitf with shift-date, starttime, endtime and summary 
+        Initialize shitf with shift-date, starttime, endtime and summary
         """
 
         self.summary = summary
@@ -51,6 +51,7 @@ class Shift():
         self.end = datetime.datetime.strptime(
             date + endTime, "%B %d, %Y%I:%M %p")
         self.length = self.end - self.start
+        self.offset = offset
 
         self.description = "Ingen lunchrast!"
 
@@ -76,10 +77,10 @@ class Shift():
             # The H1 tag "classifies" event as a shift
             "description": self.description + "\n\nH1 Communication arbetspass",
             "start": {
-                "dateTime": "{0}T{1}+02:00".format(self.start.date(), self.start.time())
+                "dateTime": "{0}T{1}{2}".format(self.start.date(), self.start.time(), self.offset)
             },
             "end": {
-                "dateTime": "{0}T{1}+02:00".format(self.end.date(), self.end.time())
+                "dateTime": "{0}T{1}{2}".format(self.end.date(), self.end.time(), self.offset)
             },
             "reminders": {
                 "useDefault": False,
@@ -157,7 +158,7 @@ def getDataPage(uName, pWord):
             return dataPage
 
 
-def updateCalendar(page):
+def updateCalendar(page, offset="+02:00"):
     """
     Update the calendar with games from given dataPage
     """
@@ -189,7 +190,7 @@ def updateCalendar(page):
 
             # Create a shift node, this stores the details of every shift and can be parsed into events
             newShift = Shift(date.text.strip(), shiftTime.text.strip()[
-                             :8], shiftTime.text.strip()[-8:], shiftName.text.strip())
+                             :8], shiftTime.text.strip()[-8:], shiftName.text.strip(), offset=offset)
 
             # If there is a shift on the same day connected to the previous shift, merge them into one event, otherwise create two separate events
             if "Kan Ej" not in newShift.summary:
@@ -258,15 +259,20 @@ if __name__ == "__main__":
         uNameLabel = tk.Label(text="Username:", font="Helvetica 10")
         uNameEntry = tk.Entry()
         pWordLabel = tk.Label(text="Password:", font="Helvetica 10")
-        pWordEntry = tk.Entry()
+        pWordEntry = tk.Entry(show="*")
 
         promptString = tk.StringVar()
         promptString.set("")
         promptLabel = tk.Label(textvariable=promptString, font="Helvetica 10")
 
+        offsetHeader = tk.Label(text="GMT offset:", font="Helvetica 10")
+        offsetString = tk.StringVar()
+        offsetString.set("+02:00")
+        offsetEntry = tk.Entry(textvariable=offsetString)
+
         def btnUpdateCalendar():
             """
-            Comprehensive update calendar function linked to button in GUI 
+            Comprehensive update calendar function linked to button in GUI
             """
 
             page = getDataPage(uNameEntry.get(), pWordEntry.get())
@@ -275,7 +281,7 @@ if __name__ == "__main__":
 
                 promptString.set("Updated!")
                 promptLabel.config(fg="green2")
-                updateCalendar(page)
+                updateCalendar(page, offsetString.get())
 
                 # "Updated!"
 
@@ -293,8 +299,10 @@ if __name__ == "__main__":
         uNameEntry.grid(row=1, column=1, sticky="EW")
         pWordLabel.grid(row=2, sticky="W")
         pWordEntry.grid(row=2, column=1, sticky="EW")
-        promptLabel.grid(columnspan=2, row=3, sticky="NSEW")
-        btn.grid(columnspan=2, row=4)
+        offsetHeader.grid(row=3, column=0, sticky="W")
+        offsetEntry.grid(row=3, column=1, sticky="EW")
+        promptLabel.grid(columnspan=2, row=4, sticky="NSEW")
+        btn.grid(columnspan=2, row=5)
 
         root.mainloop()
 
@@ -305,6 +313,7 @@ if __name__ == "__main__":
         try:
             username = sys.argv[1]
             password = sys.argv[2]
+            timeoff = sys.argv[3]
         except IndexError:
             print("Both username and password must be passed as arguments")
             sys.exit()
@@ -312,6 +321,6 @@ if __name__ == "__main__":
         page = getDataPage(username, password)
 
         if page is not None:
-            updateCalendar(page)
+            updateCalendar(page, offset=timeoff)
         else:
             print("Login unsuccessfull")
