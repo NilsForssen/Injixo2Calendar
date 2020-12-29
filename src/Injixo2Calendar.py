@@ -88,6 +88,10 @@ class Shift():
                     {
                         "method": "popup",
                         "minutes": 720          # 12 hours
+                    },
+                    {
+                        "method": "popup",
+                        "minutes": 5          # 12 hours
                     }
                 ]
             },

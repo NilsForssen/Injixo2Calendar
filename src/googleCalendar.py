@@ -1,5 +1,4 @@
 from __future__ import print_function
-import datetime
 import pickle
 import os.path
 from googleapiclient.discovery import build
@@ -32,9 +31,10 @@ EVENT_COLORIDS = {
 # Give accesss to complete Google Calendar
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 
+
 def getCredentials():
     """
-    Get the current credentials from the pickle file, 
+    Get the current credentials from the pickle file,
     If not available, create new file with credentials
     """
 
@@ -58,9 +58,10 @@ def getCredentials():
 
 service = build('calendar', 'v3', credentials=getCredentials())
 
+
 def createEvent(event):
     """
-    Create google calendar event using the standard event formatting 
+    Create google calendar event using the standard event formatting
     """
 
     event = service.events().insert(calendarId="primary", body=event).execute()
